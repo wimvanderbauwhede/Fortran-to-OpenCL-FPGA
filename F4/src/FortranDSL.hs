@@ -116,7 +116,7 @@ declNode = buildAstSeq (DSeq nullAnno) (NullDecl nullAnno nullSrcSpan)
 
 bufferDecl name bounds valueType = Decl nullAnno
                                         nullSrcSpan
-                                        [(var name, nullExpr, Nothing)]
+                                        [(var name, nullExpr, Nothing, "")]
                                         bufType
  where
   bufType = BaseType
@@ -128,20 +128,28 @@ bufferDecl name bounds valueType = Decl nullAnno
 
 typedDecl name valueType = Decl nullAnno
                                 nullSrcSpan
-                                [(var name, nullExpr, Nothing)]
+                                [(var name, nullExpr, Nothing,"")]
                                 declType
   where declType = BaseType nullAnno valueType [] nullExpr nullExpr
 
 intDecl name = Decl
   nullAnno
   nullSrcSpan
-  [(var name, nullExpr, Nothing)]
+  [(var name, nullExpr, Nothing,"")]
+  (BaseType nullAnno (Integer nullAnno) [] nullExpr nullExpr)
+
+-- WV it would of course be better to have the generic typedDecl annotated with the pragma
+-- but this is a minimal change to get me what I want
+pipeDecl name pragmastr = Decl
+  nullAnno
+  nullSrcSpan
+  [(var name, nullExpr, Nothing, pragmastr)]
   (BaseType nullAnno (Integer nullAnno) [] nullExpr nullExpr)
 
 intParam name val = Decl
   nullAnno
   nullSrcSpan
-  [(var name, con val, Nothing)]
+  [(var name, con val, Nothing,"")]
   (BaseType nullAnno (Integer nullAnno) [Parameter nullAnno] nullExpr nullExpr)
 
 varC name = var [name]

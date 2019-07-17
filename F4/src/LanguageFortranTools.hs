@@ -419,7 +419,7 @@ extractAssigneeFromDecl :: Decl Anno -> VarName Anno
 extractAssigneeFromDecl (Decl anno src lst typ) =
   head (extractVarNames assignee)
   where
-    assignee = (\(x, _, _) -> x) (head lst)
+    assignee = (\(x, _, _, _) -> x) (head lst)
 extractAssigneeFromDecl _ = error "extractAssigneeFromDecl"
 
 extractBaseType :: Type Anno -> BaseType Anno

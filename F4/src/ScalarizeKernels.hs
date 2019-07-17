@@ -143,7 +143,7 @@ replaceArrayDeclWithStreamingVarDecls replacementMap currentDecl =
       Decl
         nullAnno
         nullSrcSpan
-        [(var name, NullExpr nullAnno nullSrcSpan, Nothing)]
+        [(var name, NullExpr nullAnno nullSrcSpan, Nothing, "")]
         updatedType
     declName = declNameAsString currentDecl
 

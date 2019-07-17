@@ -2,7 +2,7 @@
 {-# LANGUAGE TupleSections        #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
-module AddMemoryAccessKernels where
+module AddMemoryAccessKernels (addMemoryAccesses) where
 
 import           Data.Foldable
 import           Data.Ix

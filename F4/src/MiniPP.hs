@@ -155,7 +155,7 @@ showType bt e1 e2 =
 miniPPD :: Decl Anno -> String
 miniPPD decl =
   case decl
-         -- Decl _ _ [(Expr p, Expr p, Maybe Int)] (Type p)
+         -- Decl p SrcSpan [(Expr p, Expr p, Maybe Int)] (Type p)
         of
     Decl _ _ ttups ty ->
       let ty_str =
@@ -169,14 +169,15 @@ miniPPD decl =
             intercalate
               ","
               (map
-                 (\(e1, e2, mi) ->
+                 (\(e1, e2, mi, s) ->
                     miniPP e1 ++
                     (if miniPP e2 == ""
                        then ""
                        else " = " ++ miniPP e2 ++ " ") ++
                     (case mi of
                        Nothing -> ""
-                       Just ii -> " ! " ++ show ii))
+                       Just ii -> " ! " ++ show ii)
+                        ++ (if s/="" then (" "++s) else "") )
                  ttups)
        in "      " ++ ty_str ++ " :: " ++ ttups_str -- indent is ad hoc!
     DSeq _ d1 d2 -> miniPPD d1 ++ "\n" ++ miniPPD d2

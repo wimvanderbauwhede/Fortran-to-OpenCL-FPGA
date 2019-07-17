@@ -247,7 +247,7 @@ getArgNamesAsVarNames (ArgName _ str) = [VarName nullAnno str]
 getArgNamesAsVarNames _               = []
 
 getDeclaredVarNames :: Decl Anno -> [VarName Anno]
-getDeclaredVarNames (Decl _ _ lst _) = foldl (\accum (expr1, _, _) -> accum ++ extractVarNames expr1) [] lst
+getDeclaredVarNames (Decl _ _ lst _) = foldl (\accum (expr1, _, _, _) -> accum ++ extractVarNames expr1) [] lst
 getDeclaredVarNames decl = []
 
 analyseAllVarValues_fortran :: Fortran Anno -> LocalVarValueAnalysis

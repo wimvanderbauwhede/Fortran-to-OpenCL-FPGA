@@ -63,7 +63,7 @@ addDeclsToConstants ((Decl _ _ lst typ):followingDecls) constants =
   where
     assignments =
       map
-        (\(assignee, assignment, _) ->
+        (\(assignee, assignment, _, _) ->
            (head $ extractVarNames assignee, assignment))
         lst
     nonNullAssignments =
@@ -201,13 +201,13 @@ replaceVarsWithConstants codeSeg constants = declNameChangedBack -- everywhere (
 -- doesn't replace the Var in the Decl with the variables value.
 -- The suffix is removed immediately after the constants are inserted
 addNonceToDeclNames :: Decl Anno -> Decl Anno
-addNonceToDeclNames (Decl declAnno declSrcSpan ((Var varAnno varSrcSpan (((VarName varNameAnno name), varNameExprList):varLs), exprList, declInt):declLs) declType) =
+addNonceToDeclNames (Decl declAnno declSrcSpan ((Var varAnno varSrcSpan (((VarName varNameAnno name), varNameExprList):varLs), exprList, declInt, declStr):declLs) declType) =
   Decl
     declAnno
     declSrcSpan
     (( (Var varAnno varSrcSpan ((updatedVarName, varNameExprList) : varLs))
      , exprList
-     , declInt) :
+     , declInt, declStr) :
      declLs)
     declType
   where
@@ -218,13 +218,13 @@ addNonceToDeclNames (Decl declAnno declSrcSpan ((Var varAnno varSrcSpan (((VarNa
 addNonceToDeclNames decl = decl
 
 removeNonceFromDeclNames :: Decl Anno -> Decl Anno
-removeNonceFromDeclNames (Decl declAnno declSrcSpan ((Var varAnno varSrcSpan (((VarName varNameAnno name), varNameExprList):varLs), exprList, declInt):declLs) declType) =
+removeNonceFromDeclNames (Decl declAnno declSrcSpan ((Var varAnno varSrcSpan (((VarName varNameAnno name), varNameExprList):varLs), exprList, declInt, declStr):declLs) declType) =
   Decl
     declAnno
     declSrcSpan
     (( (Var varAnno varSrcSpan ((updatedVarName, varNameExprList) : varLs))
      , exprList
-     , declInt) :
+     , declInt, declStr) :
      declLs)
     declType
   where

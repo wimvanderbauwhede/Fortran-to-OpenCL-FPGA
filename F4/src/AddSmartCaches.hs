@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase      #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module AddSmartCaches where
+module AddSmartCaches (insertSmartCaches) where
 
 import           CommandLineProcessor
 import           Data.Ix

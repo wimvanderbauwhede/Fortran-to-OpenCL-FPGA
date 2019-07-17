@@ -1,4 +1,4 @@
-module AddKernelLoopGuards where
+module AddKernelLoopGuards (addLoopGuards) where
 
 import           Data.Data
 import           Data.Generics         (Data, Typeable, everything, everywhere,

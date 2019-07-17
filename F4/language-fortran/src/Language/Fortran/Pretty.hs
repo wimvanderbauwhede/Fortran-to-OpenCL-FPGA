@@ -206,10 +206,10 @@ show_data     ((xs,ys)) = "/" ++  outputG xs ++ "/" ++ outputG ys
 
 -- showDV :: (Expr,Expr) -> String
 
-showDV (v, NullExpr _ _, Just n)  = (outputF v) ++ "*" ++ show n
-showDV (v, NullExpr _ _, Nothing) = outputF v
-showDV (v,e,Nothing)              = outputF v++" = "++outputF e
-showDV (v,e,Just n)              = (outputF v) ++ "*" ++ show n ++ " = "++(outputF e)
+showDV (v, NullExpr _ _, Just n, _)  = (outputF v) ++ "*" ++ show n
+showDV (v, NullExpr _ _, Nothing, _) = outputF v
+showDV (v,e,Nothing,_)              = outputF v++" = "++outputF e
+showDV (v,e,Just n,_)              = (outputF v) ++ "*" ++ show n ++ " = "++(outputF e)
 
 showDU (name,spec) = outputF name++" = "++outputF spec
 

@@ -753,7 +753,7 @@ declNameAsString = getNameFromVarName . getVarName . head . declNameQuery
 declNameQuery :: Decl Anno -> [Expr Anno]
 declNameQuery decl =
   case decl of
-    (Decl _ _ ((expr, _, _):_) _) -> [expr] --everything (++) (mkQ [] extractVarNamesFromExpr) expr
+    (Decl _ _ ((expr, _, _, _):_) _) -> [expr] --everything (++) (mkQ [] extractVarNamesFromExpr) expr
     _                             -> []
 
 extractVarNamesFromExpr :: Expr Anno -> [VarName Anno]

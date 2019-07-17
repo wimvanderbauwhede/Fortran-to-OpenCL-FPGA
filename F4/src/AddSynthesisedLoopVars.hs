@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase    #-}
 {-# LANGUAGE TupleSections #-}
 
-module AddSynthesisedLoopVars where
+module AddSynthesisedLoopVars (synthesiseLoopVars) where
 
 import           Control.Monad.Extra
 import           Data.Generics
@@ -43,7 +43,7 @@ synthesiseLoopVars largestStreamDims kernels =
     (nestingDirs, loopVarsAndOperatingRanges) =
       unzip $ map (getAllLoopVarToRange largestStreamDims . body) kernels
 
-loopVarName = "count"
+loopVarName = "idx"
 
 addToOneKernel ::
      [(Int, String, (Int, Int))] -> (Kernel, NestingDirection) -> IO Kernel

@@ -3,51 +3,53 @@
 {-# LANGUAGE TupleSections   #-}
 
 module F4 where
-
-import           AddKernelLoopGuards
-import           AddMemoryAccessKernels
-import           AddPipesToKernels
-import           AddSmartCaches
-import           AddSynthesisedLoopVars
-import           AddTransitStreams
-import           BuildDeviceModule
-import           CommandLineProcessor        (F4Opts (..), f4CmdParser)
+-- In alphabetical order, but library modules first
 import           Control.Monad.Extra
 import           Data.Generics               (everything, everywhere,
                                               everywhereM, gmapQ, gmapT, mkM,
                                               mkQ, mkT)
 import           Data.List
 import           Data.List.Index
-import qualified Data.Map                    as DMap
+import qualified Data.Map as DMap
 import           Data.Maybe
 import           Data.Tuple.Utils
 import           Debug.Trace
-import           DetectDriverLoopSize
-import           DetectIndividualPipelines
-import           EnsureMemoryWriteback
-import           KernelCodeGen
-import           KernelExtraction
-import           Language.Fortran
-import           Language.Fortran.Pretty
-import qualified LanguageFortranTools        as LFT
-import           LinkReductionVars
-import           MemoryAccessCodeGen
-import           MergeSubroutines
-import           MiniPP
-import           Options.Applicative
-import           Parser                      (parseProgramData)
-
-import           RemoveConstantsFromStencils hiding (addLoopGuards)
-import           RemoveConstantsWrapper
-import           SanityChecks
-import           ScalarizeKernels
-import           SmartCacheCodeGen
-import           StencilDetection
+import           Options.Applicative -- 
 import           System.Directory
 import           System.FilePath.Posix
 import           System.IO
-import           Transformer
-import           Utils
+
+-- Compiler modules
+import           AddKernelLoopGuards (addLoopGuards)
+import           AddMemoryAccessKernels (addMemoryAccesses)
+import           AddPipesToKernels (populatePipes)
+import           AddSmartCaches (insertSmartCaches)
+import           AddSynthesisedLoopVars (synthesiseLoopVars)
+import           AddTransitStreams (addTransitStreams) -- WV: i.e. pass-through
+import           BuildDeviceModule (buildDeviceModule)
+import           CommandLineProcessor (F4Opts (..), f4CmdParser)
+import           DetectDriverLoopSize (detectDriverLoopSize,updatePipelineSharedData)
+import           DetectIndividualPipelines (updateSubTablesWithPipelines)
+import           EnsureMemoryWriteback (ensureMemoryWriteBack)
+-- import           KernelCodeGen
+import           KernelExtraction (getKernels)
+import           Language.Fortran (Program)
+-- import           Language.Fortran.Pretty
+import qualified LanguageFortranTools as LFT
+import           LinkReductionVars (linkReductionVars)
+-- import           MemoryAccessCodeGen
+import           MergeSubroutines (mergeSubsToBeParallelised)
+import           MiniPP (miniPPProgUnit)
+import           Parser (parseProgramData)
+
+import           RemoveConstantsFromStencils hiding (addLoopGuards)
+import           RemoveConstantsWrapper (removeStencilConstantsWrapper)
+import           SanityChecks -- global import
+import           ScalarizeKernels (scalarizeKernels)
+-- import           SmartCacheCodeGen
+import           StencilDetection (detectStencilsInSubsToBeParallelise)
+import           Transformer (paralleliseProgUnit_foldl, combineKernelProgUnit_foldl)
+import           Utils -- global import
 
 processArgs :: IO ()
 processArgs = do
@@ -71,6 +73,7 @@ compilerMain args = do
   debug_displaySubRoutineTable notForOffloadSubTable False
   putStrLn (rule '+' ++ " Subroutines for offload " ++ rule '+')
   debug_displaySubRoutineTable forOffloadSubTable False
+  
   putStrLn (rule '+' ++ " Subroutines for offload merged " ++ rule '+')
   -- Merge the subroutines to be offloaded into one
   let subroutineTableWithOffloadSubsMerged =
@@ -79,11 +82,13 @@ compilerMain args = do
   let mergedOffloadName =
         head $
         DMap.keys $ DMap.filter parallelise subroutineTableWithOffloadSubsMerged
+
   putStrLn (rule '+' ++ " Pipeline Detection " ++ rule '+')
   (pipelineNames, pipelineSubroutineTable) <-
     updateSubTablesWithPipelines
       (subroutineTableWithOffloadSubsMerged DMap.! mergedOffloadName)
       subroutineTableWithOffloadSubsMerged
+
   putStrLn (rule '+' ++ " Map + Fold Detection " ++ rule '+')
   -- Map and fold detection from Gavin's compiler
   -- < STEP 4 : Parallelise the loops >
@@ -96,10 +101,12 @@ compilerMain args = do
   debug_displaySubRoutineTable parallelisedSubroutines False
   let srtWithParallelisedSubroutines =
         DMap.union parallelisedSubroutines pipelineSubroutineTable -- subroutineTableWithOffloadSubsMerged
+
   putStrLn (rule '+' ++ " Stencil Detection " ++ rule '+')
   let srtAfterStenDetect =
         detectStencilsInSubsToBeParallelise srtWithParallelisedSubroutines
   debug_displaySubRoutineTable srtAfterStenDetect False
+
   -- < Try to fuse the parallelised loops as much as possible (on a per-subroutine basis) >
   let (combinedKernelSubroutines, combAnnotations) =
         foldl
@@ -114,6 +121,7 @@ compilerMain args = do
   --
   -- kernels = [[Kernel]] representing pipelines
   kernels <- mapM getKernels (getOffloadSubs srtAfterKernelCombination)
+
   scalarisedKernels <-
     mapM (processPipeline args (length kernels)) $ indexed kernels
   let withPipelineNumber =
@@ -122,7 +130,7 @@ compilerMain args = do
   (fileName, deviceCode, callingData) <-
     buildDeviceModule (length kernels) withPipelineNumber
   mapM_ print callingData
-  writeToFile args (fileName ++ ".f95") (miniPPProgUnit deviceCode)
+  writeToFile args (fileName ++ ".f95") (miniPPProgUnit deviceCode) 
   return ()
 
 processPipeline :: F4Opts -> Int -> (Int, [Kernel]) -> IO [PipelineStage]

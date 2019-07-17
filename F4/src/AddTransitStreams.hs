@@ -1,4 +1,4 @@
-module AddTransitStreams where
+module AddTransitStreams (addTransitStreams) where
 
 import qualified Data.Set                      as Set
 import           Debug.Trace

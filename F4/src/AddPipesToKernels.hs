@@ -2,7 +2,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TupleSections   #-}
 
-module AddPipesToKernels where
+module AddPipesToKernels (populatePipes) where
 
 import           AddMemoryAccessKernels
 import           Data.Generics

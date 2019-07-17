@@ -22,7 +22,10 @@ buildDeviceModule numPipelines pipelineStages = do
   putStrLn $ miniPPProgUnit deviceModule
   return (moduleName, deviceModule, callingData)
   where
-    deviceModule = fortranModule moduleName pipeDecls (pipeInitSub : kernels)
+    -- WV: removing the pipeInitSub is trivial
+    -- WV: but pipeDecls would need to support the pragma comment
+    -- deviceModule = fortranModule moduleName pipeDecls (pipeInitSub : kernels)
+    deviceModule = fortranModule moduleName pipeDecls kernels
     kernels = concat kernelsSubLists
     callingData = concat kernelCallingDataPerKernel
     (kernelCallingDataPerKernel, kernelsSubLists) =
@@ -85,8 +88,20 @@ generateStage (pipelineNumber, (kernel, smartCache, memAccess)) =
 
 updateKernelCallingData pipelineNum kcd = kcd {pipelineNumber = pipelineNum}
 
+-- generatePipeDecl :: Pipe -> Decl Anno
+-- generatePipeDecl (Pipe _ _ pipeName _ _) = intDecl pipeName
+
 generatePipeDecl :: Pipe -> Decl Anno
-generatePipeDecl (Pipe _ _ pipeName _ _) = intDecl pipeName
+generatePipeDecl (Pipe _ _ pipeName streamValueType _) = 
+  let
+    pipe_ftype = case streamValueType of
+      Float -> "real"
+      Int -> "integer"
+    pragma_str = "!$OCL pipe "++pipe_ftype
+  in
+      pipeDecl pipeName pragma_str
+
+
 
 generatePipeInitSubRoutine :: [Pipe] -> ProgUnit Anno
 generatePipeInitSubRoutine pipes = pipeInitSubroutine

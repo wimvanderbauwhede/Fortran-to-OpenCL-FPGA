@@ -108,11 +108,11 @@ data Uses p  = Use p (String, Renames) (Uses p) p
 data Block    p = Block p  (UseBlock p) (Implicit p) SrcSpan (Decl p) (Fortran p)
                 deriving (Show, Functor, Typeable, Data, Eq)
 
-data Decl     p = Decl           p SrcSpan [(Expr p, Expr p, Maybe Int)] (Type p)      -- declaration stmt
+data Decl     p = Decl           p SrcSpan [(Expr p, Expr p, Maybe Int, String)] (Type p)      -- declaration stmt -- WV 2019-07-17 I added a String for trailing pragmas
                 | Namelist       p [(Expr p, [Expr p])]                     -- namelist declaration
                 | DataDecl       p (DataForm p)
                 | Equivalence    p SrcSpan [(Expr p)]
-                | AttrStmt       p (Attr p) [(Expr p, Expr p, Maybe Int)]
+                | AttrStmt       p (Attr p) [(Expr p, Expr p, Maybe Int, String)] -- WV 2019-07-17 I added a String for trailing pragmas
                 | AccessStmt     p (Attr p) [GSpec p]                       -- access stmt
                 | ExternalStmt   p [String]                                 -- external stmt
                 | Interface      p (Maybe (GSpec p)) [InterfaceSpec p]      -- interface declaration

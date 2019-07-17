@@ -402,19 +402,19 @@ attr_spec_list
   : attr_spec_list ',' attr_spec                  { (fst $1++fst $3,snd $1++snd $3) }
   | {- empty -}                                   { ([],[]) }
 
-entity_decl_list :: { [(Expr A0, Expr A0, Maybe Int)] }
+entity_decl_list :: { [(Expr A0, Expr A0, Maybe Int, String)] }
 entity_decl_list
 : entity_decl ',' entity_decl_list         { $1:$3 }
 | entity_decl                              { [$1] }
 
-entity_decl :: { (Expr A0, Expr A0, Maybe Int) }
+entity_decl :: { (Expr A0, Expr A0, Maybe Int, String) }
 entity_decl
--- : srcloc ID '=' expr   {% getSrcSpan $1 >>= (\s -> return $ (Var DMap.empty s [(VarName DMap.empty $2,[])], $4, Nothing)) }
-: variable '=' expr   { ($1, $3, Nothing) }
-| variable             {% getSrcSpanNull >>= (\s -> return $ ($1, NullExpr DMap.empty s, Nothing)) }  
-| variable '*' num     {% getSrcSpanNull >>= (\s -> return $ ($1, NullExpr DMap.empty s, Just $ read $3)) }  
+-- : srcloc ID '=' expr   {% getSrcSpan $1 >>= (\s -> return $ (Var DMap.empty s [(VarName DMap.empty $2,[])], $4, Nothing,"")) }
+: variable '=' expr   { ($1, $3, Nothing,"") }
+| variable             {% getSrcSpanNull >>= (\s -> return $ ($1, NullExpr DMap.empty s, Nothing,"")) }  
+| variable '*' num     {% getSrcSpanNull >>= (\s -> return $ ($1, NullExpr DMap.empty s, Just $ read $3,"")) }  
 
--- | id2                  {% getSrcSpanNull >>= (\s -> return $ (Var DMap.empty s [(VarName DMap.empty $1,[])], NullExpr DMap.empty s, Nothing)) }  
+-- | id2                  {% getSrcSpanNull >>= (\s -> return $ (Var DMap.empty s [(VarName DMap.empty $1,[])], NullExpr DMap.empty s, Nothing,"")) }  
  
 
 object_name :: { String }
@@ -729,8 +729,8 @@ component_attr_spec
 | dim_spec              { ($1,[]) }
 
 attr_stmt :: { Decl A0 }
-attr_stmt : attr_spec_p '(' entity_decl_list  ')'  { AttrStmt DMap.empty (head $ snd $1) ($3 ++ (map (\(x, y) -> (x, y, Nothing)) (fst $1))) } 
-          | attr_spec_p   { AttrStmt DMap.empty (head $ snd $1) ((map (\(x, y) -> (x, y, Nothing)) (fst $1))) } 
+attr_stmt : attr_spec_p '(' entity_decl_list  ')'  { AttrStmt DMap.empty (head $ snd $1) ($3 ++ (map (\(x, y) -> (x, y, Nothing,"")) (fst $1))) } 
+          | attr_spec_p   { AttrStmt DMap.empty (head $ snd $1) ((map (\(x, y) -> (x, y, Nothing,"")) (fst $1))) } 
 | dim_spec_p  { AttrStmt DMap.empty (Dimension DMap.empty $1) [] } 
 
 access_stmt :: { Decl A0 }
