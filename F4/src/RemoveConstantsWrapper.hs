@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module RemoveConstantsWrapper where
+module RemoveConstantsWrapper ( removeStencilConstantsWrapper ) where 
 
 import           CommandLineProcessor
 import           ConstantFolding             (foldConstants)
@@ -17,14 +17,14 @@ import           Utils
 -- HA Ha ha what a mess
 -- The stencil constant removal pass inserts nodes to the AST which then don't have
 -- their source location properties set. This breaks Gavin's access analysis... :)
--- So take the parsed data, remove the constants write the files out to temp location
+-- So take the parsed data, remove the constants, write the files out to temp location
 -- and then reparse them and put them back in the subroutine table...........
 -- LOL
 removeStencilConstantsWrapper :: F4Opts -> SubroutineTable -> IO SubroutineTable
 removeStencilConstantsWrapper options subroutineTable = do
   createDirectoryIfMissing True scratchDirName
   createDirectoryIfMissing True "consts"
-  writeOutSubTable withConstantsFolded "consts"
+  writeOutSubTable withConstantsFolded "consts" 
   writeOutSubTable stencilsWithNoConstants scratchDirName
   parseProgramData updatedOpts
   where

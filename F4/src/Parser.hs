@@ -1,8 +1,7 @@
 {-# LANGUAGE FlexibleInstances   #-}
-{-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Parser where
+module Parser ( parseProgramData )  where
 
 import           CommandLineProcessor
 import           Data.Char
@@ -18,7 +17,7 @@ import           SanityChecks
 import           System.FilePath      (FilePath, (</>))
 import           System.IO.Unsafe
 import           Utils
-
+import           Warning  (warning)
 -- data InitialProgramData = InitialProgramData {
 --     mainParseResult       :: (Program Anno, [String], String),
 --     forOffloadParseResult :: [(Program Anno, [String], String)]
@@ -30,8 +29,7 @@ data SubRecAnalysis = SRA
   , subroutineToLines :: DMap.Map String [String]
   , subroutineToAst :: DMap.Map String (ProgUnit Anno)
   , subroutineToCalls :: DMap.Map String (DMap.Map String (Fortran Anno))
-  , subroutineToArgTrans :: DMap.Map String (DMap.Map String ( (Fortran Anno)
-                                                             , [ArgumentTranslation]))
+  , subroutineToArgTrans :: DMap.Map String (DMap.Map String ( Fortran Anno, [ArgumentTranslation]))
   }
 
 getAst (ast, _, _) = ast
@@ -268,7 +266,7 @@ parseFile ::
   -> String
   -> IO ((Program Anno, [String], String))
 parseFile cppDArgs cppXArgs fixedForm dir filename = do
-  parseOutput <- LFT.parseFile cppDArgs cppXArgs fixedForm dir filename
+  parseOutput <- LFT.parseFile cppDArgs cppXArgs fixedForm dir (warning filename ("Parsing " ++ filename ++ " in Parser.parseFile"))
   let ((parsedProgram, lines), _, _) = parseOutput
   -- validateInputFile parsedProgram
   return (parsedProgram, lines, path)

@@ -51,7 +51,7 @@ parseFile cppDArgs cppXArgs fixedForm dir filename = do
   let preproc_inp_lines = lines preproc_inp
       path = dir ++ "/" ++ filename
   return
-    ( (warning (parse preproc_inp) ("Parsing " ++ path), preproc_inp_lines)
+    ( (warning (parse preproc_inp) ("Parsing " ++ path ++ ":\n"++ (unlines preproc_inp_lines)), preproc_inp_lines)
     , (filename, stash)
     , moduleVarTable)
     --return (parse  preproc_inp, preproc_inp_lines) -- ,(filename, stash))
@@ -142,11 +142,12 @@ outputExprFormatting :: Expr Anno -> String
 outputExprFormatting (Var _ _ list) =
   foldl
     (++)
-    ""
+    ""    
     (map
-       (\(varname, exprList) ->
-          ((\(VarName _ str) -> str) varname) ++
-          (if exprList /= []
+       (
+         \(varname, exprList) ->
+          ( (\(VarName _ str) -> str) varname) ++
+          if exprList /= []
              then "(" ++
                   (foldl
                      (\accum item ->
@@ -157,7 +158,8 @@ outputExprFormatting (Var _ _ list) =
                      ""
                      (map (outputExprFormatting) exprList)) ++
                   ")"
-             else ""))
+             else ""
+       )
        list)
 outputExprFormatting (Con _ _ str) =
   if takeLast 2 str == ".0"

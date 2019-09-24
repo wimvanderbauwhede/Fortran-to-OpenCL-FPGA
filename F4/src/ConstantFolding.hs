@@ -16,6 +16,7 @@ import           Language.Fortran
 import           LanguageFortranTools
 import           MiniPP
 import           Utils
+import           Warning  (warning)
 
 -- type Constants = DMap.Map (VarName Anno) (Expr Anno)
 --     STRATEGY
@@ -87,13 +88,16 @@ addDeclsToConstants [] constants = constants
 addDeclsToConstants (x:xs) constants = addDeclsToConstants xs constants
 
 readI :: String -> Int
-readI = read
+readI s = warning (read s) s
+
+readF :: String -> Float
+readF s = warning (read s) s
 
 computeSimpleExprs :: Expr Anno -> Expr Anno
 computeSimpleExprs (Bin _ _ (Plus _) (Con _ _ one) (Con _ _ two)) =
-  Con nullAnno nullSrcSpan $ show (readI one + readI two)
+  Con nullAnno nullSrcSpan $ show (readF one + readF two)
 computeSimpleExprs (Bin _ _ (Minus _) (Con _ _ one) (Con _ _ two)) =
-  Con nullAnno nullSrcSpan $ show (readI one - readI two)
+  Con nullAnno nullSrcSpan $ show (readF one - readF two)
 computeSimpleExprs expr = expr
 
 addAssignmentsToConstants ::
@@ -190,7 +194,7 @@ replaceVarsWithConstants codeSeg constants = declNameChangedBack -- everywhere (
     constantsSubstitued =
       everywhere (mkT (replaceVarsWithConstants_expr constants)) declNameChanged
     declNameChangedBack =
-      everywhere (mkT (removeNonceFromDeclNames)) constantsSubstitued
+      everywhere (mkT removeNonceFromDeclNames) constantsSubstitued
 
 --    All appearences of a variable that appears in the constant table are replaced with a 'Con _ _ _' node OTHER THAN when those variables
 --    appear on the left side of an assignment operations

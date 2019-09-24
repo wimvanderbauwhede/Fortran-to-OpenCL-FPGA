@@ -1,5 +1,4 @@
 {-# LANGUAGE LambdaCase    #-}
-{-# LANGUAGE TupleSections #-}
 
 module AddSynthesisedLoopVars (synthesiseLoopVars) where
 
@@ -48,7 +47,7 @@ loopVarName = "idx"
 addToOneKernel ::
      [(Int, String, (Int, Int))] -> (Kernel, NestingDirection) -> IO Kernel
 addToOneKernel largestOperatingRangeForEachLoopVar (kernel, nestingDirection) = do
-  putStrLn $ show kernelWithLoopVarsUpdated
+  print kernelWithLoopVarsUpdated
   return kernelWithLoopVarsUpdated
   where
     kernelCode = body kernel

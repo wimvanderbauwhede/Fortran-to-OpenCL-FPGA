@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE TupleSections        #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module AddMemoryAccessKernels (addMemoryAccesses) where
 

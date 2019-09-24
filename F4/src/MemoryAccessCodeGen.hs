@@ -69,8 +69,8 @@ generateMemoryReader memRead@MemoryReader {..} =
       bufferDecl memBufferName dimensions (getFortranTypeForStream stream)
     readOutVarName = streamName
     readOutVarDecl = typedDecl readOutVarName (getFortranTypeForStream stream)
-    loopVars =
-      reverse $ take (length dimensions) $ map (\i -> [chr i]) [97 .. 122]
+    loopVars = reverse $ take (length dimensions) $ (map (\i->[i]) ['i' .. 'n' ] ) ++ (map (\i -> "idx_"++(show i)) [1..])
+      -- reverse $ take (length dimensions) $ map (\i -> [chr i]) [97 .. 122] -- WV: huh. overly complicated and obscure.       
     (mainLoop, loopVarDecls) =
       foldl buildDriverLoopNest (writeCode, []) $ zip dimensions loopVars
     writeCode =

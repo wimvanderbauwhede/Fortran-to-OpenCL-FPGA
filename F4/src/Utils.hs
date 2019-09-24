@@ -971,7 +971,7 @@ debug_displaySubRoutineTable srt withAst =
     False -> mapM_ (debug_displaySubTableEntry withAst) asList
     True  -> mapM_ (debug_displaySubTableEntry withAst) asList
   where
-    asList = map (\(_, value) -> value) $ DMap.toList srt
+    asList = map snd $ DMap.toList srt
 
 debug_displaySubTableEntry :: Bool -> SubRec -> IO ()
 debug_displaySubTableEntry showAst sr = do

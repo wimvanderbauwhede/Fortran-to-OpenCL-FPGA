@@ -1,0 +1,2 @@
+ stack build --profile
+ stack exec -- F4-exe +RTS -xc -RTS -m coriolis.f95 -s ./Test/src -o predict_vel
